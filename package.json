@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "st": "^3.0.0",
+    "ws": "^8.15.1"
+  },
+  "scripts": {
+    "serve": "node ./src/server/index.mjs"
+  }
+}

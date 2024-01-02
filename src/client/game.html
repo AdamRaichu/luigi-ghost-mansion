@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <title>Websocket Experiment</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <link rel="preload" href="main.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="main.css">
+  </noscript>
+  <script defer async src='game.mjs' type="module"></script>
+</head>
+
+<body>
+  <h1>Luigi's Ghost Mansion</h1>
+  <p>Status: <span id="status">NONE</span></p>
+  <p>Player count: <span id="playerCount">0</span></p>
+  <p>Your role: <span id="role">WAITING_FOR_SERVER</span></p>
+  <canvas id="canvas" width="800" height="400"></canvas>
+  <div id="sprites">
+    <img data-name="ghost.jpg" src="./images/ghost.jpg">
+  </div>
+</body>
+
+</html>

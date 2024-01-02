@@ -1,0 +1,16 @@
+body {
+  background-color: #1f2227;
+  color: white;
+}
+
+canvas {
+  background-color: #100b02;
+}
+
+#sprites {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+}
