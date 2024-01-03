@@ -2,12 +2,15 @@ import { randomUUID } from "crypto";
 import { DrawableImage } from "../../common/drawable.mjs";
 import { GameMaps } from "./maps.mjs";
 
-var CURRENT = undefined;
-
 export class ServerGame {
+  static currentGame = new ServerGame();
+
   static getCurrent() {
-    CURRENT = CURRENT ?? new ServerGame();
-    return CURRENT;
+    return ServerGame.currentGame;
+  }
+
+  constructor() {
+    console.log("new ServerGame");
   }
 
   playerRoles = {};
