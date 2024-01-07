@@ -10,7 +10,7 @@ if (!fs.existsSync("./logs")) {
 }
 
 const logFilePath = `./logs/${currentDate.getFullYear()}-${currentDate.getMonth()}-${currentDate.getDate()}--${currentDate.getHours()}-${currentDate.getMinutes()}-${currentDate.getSeconds()}.log`;
-fs.writeFileSync(logFilePath, "--- Beginning of log ---\n");
+// fs.writeFileSync(logFilePath, "--- Beginning of log ---\n");
 const logStream = fs.createWriteStream(logFilePath, { flags: "a" });
 
 console.log = function () {
