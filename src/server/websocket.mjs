@@ -19,7 +19,7 @@ wss.on("connection", function connection(ws) {
         break;
 
       case Messages.updateRequest:
-        sendTo(ws, { type: Messages.updateFulfill, data: game.getUpdateData(data.id) });
+        sendTo(ws, { type: Messages.updateFulfill, data: game.getUpdateData(data) });
         break;
 
       default:

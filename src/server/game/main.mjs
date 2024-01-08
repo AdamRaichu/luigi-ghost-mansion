@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
-import { DrawableImage } from "../../common/drawable.mjs";
-import { GameMaps } from "./maps.mjs";
+import { Role } from "../../common/role.mjs";
+import { GameMap } from "./maps.mjs";
+import { Ghost } from "./player.mjs";
 
 export class ServerGame {
   static currentGame = new ServerGame();
@@ -14,21 +15,31 @@ export class ServerGame {
   }
 
   playerRoles = {};
+  /**
+   * Structure:
+   * ```
+   *  {
+   *    ID: {
+   *      Action: key
+   *    }
+   *  }
+   * ```
+   */
+  playerConfig = {};
+  pressedKeys = {};
 
-  map = GameMaps.randomMap();
-
-  begin() {}
+  map = GameMap.randomMap();
 
   newPlayer() {
     const id = randomUUID();
     const playerCount = this.getPlayerCount();
 
     if (playerCount === 0) {
-      this.playerRoles[id] = "role1";
+      this.playerRoles[id] = Role.ghost;
     } else if (playerCount === 1) {
-      this.playerRoles[id] = "role2";
+      this.playerRoles[id] = Role.luigi1;
     } else {
-      this.playerRoles[id] = "spectator";
+      this.playerRoles[id] = Role.spectator;
     }
 
     return id;
@@ -38,37 +49,50 @@ export class ServerGame {
     return this.playerRoles[id];
   }
 
+  getGhost() {
+    console.assert(this.getPlayerCount() > 0, "Cannot get ghost if no players are registered.");
+
+    const _this = this;
+    var ghostId = "NONE";
+    Object.keys(this.playerRoles).forEach(function (id) {
+      if (_this.getPlayerRole(id) === Role.ghost) {
+        ghostId = id;
+      }
+    });
+    console.assert(ghostId !== "NONE", "No player ids match ghost role (using getPlayerRole).");
+
+    return new Ghost(ghostId);
+  }
+
   getPlayerCount() {
     return Object.keys(this.playerRoles).length;
   }
 
-  getUpdateData(id) {
+  getUpdateData(input) {
     const returnData = {};
-    const role = this.getPlayerRole(id);
+
+    // Track which keys the player is pressing.
+    this.pressedKeys[input.id] = input.pressedKeys;
+
+    // Update the player counter.
     returnData.playerCount = this.getPlayerCount();
+
+    // Add renderData from the map.
     returnData.renderData = this.map.getRenderData();
 
-    var shouldRenderGhost = false;
-
-    switch (role) {
-      case "role1":
-        shouldRenderGhost = true;
-        break;
-
-      case "role2":
-        break;
-
-      case "spectator":
-        break;
-
-      default:
-        break;
-    }
-
-    if (shouldRenderGhost) {
-      returnData.renderData.push(new DrawableImage("ghost.jpg", 50, 50, new Date().getSeconds() * 6));
+    // Add to renderData based on role.
+    const role = this.getPlayerRole(input.id);
+    const ghost = this.getGhost();
+    if (role === Role.ghost || ghost.isSprinting()) {
+      this.renderGhost(returnData.renderData);
     }
 
     return returnData;
   }
+
+  /**
+   * Add the render data for the ghost to `renderData`.
+   * @param {Drawable[]} renderData
+   */
+  renderGhost(renderData) {}
 }

@@ -3,8 +3,8 @@ import { Drawable, DrawableWall } from "../../common/drawable.mjs";
 const basicMapWidth = 300;
 const basicWallWidth = 30;
 
-export class GameMaps {
-  static BASIC = new GameMaps("Basic", [
+export class GameMap {
+  static BASIC = new GameMap("Basic", [
     new DrawableWall(0, 0, basicMapWidth, basicWallWidth),
     new DrawableWall(basicMapWidth - basicWallWidth, 0, basicWallWidth, basicMapWidth),
     new DrawableWall(0, 0, basicWallWidth, basicMapWidth),
