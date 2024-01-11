@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { DefaultConfig } from "../../common/default-config.mjs";
 import { Role } from "../../common/role.mjs";
 import { GameMap } from "./maps.mjs";
 import { Ghost } from "./player.mjs";
@@ -42,7 +43,13 @@ export class ServerGame {
       this.playerRoles[id] = Role.spectator;
     }
 
+    this.playerConfig[id] = JSON.parse(JSON.stringify(DefaultConfig));
+
     return id;
+  }
+
+  updateConfig(id, config) {
+    this.playerConfig[id] = { ...this.playerConfig[id], ...config };
   }
 
   getPlayerRole(id) {

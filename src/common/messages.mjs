@@ -5,4 +5,6 @@ export const Messages = {
   idFulfill: "idFulfill",
   gameStart: "gameStart",
   setConfig: "setConfig",
+  setConfigAck: "setConfigAck",
+  errorResponse: "errorResponse",
 };

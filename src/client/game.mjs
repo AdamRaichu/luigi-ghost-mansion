@@ -87,6 +87,9 @@ class ClientGame {
           Drawable.fromJSON(jsonData).draw();
         }
         break;
+      case Messages.errorResponse:
+        console.error(data);
+        break;
       default:
         console.warn("Unknown response from server.");
         break;

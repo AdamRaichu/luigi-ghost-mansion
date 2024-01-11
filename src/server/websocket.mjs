@@ -22,7 +22,13 @@ wss.on("connection", function connection(ws) {
         sendTo(ws, { type: Messages.updateFulfill, data: game.getUpdateData(data) });
         break;
 
+      case Messages.setConfig:
+        game.updateConfig(data.id, data.config);
+        sendTo(ws, { type: Messages.setConfigAck });
+        break;
+
       default:
+        sendTo(ws, { type: Messages.errorResponse, msg: "Unknown message received from client. (Does not match any expected members of Messages.)", data });
         break;
     }
   });
