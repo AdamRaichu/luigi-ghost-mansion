@@ -60,7 +60,9 @@ class ClientGame {
    */
   socketListener(ev) {
     var data = JSON.parse(ev.data);
-    console.log(data);
+    if (params?.debug) {
+      console.log(data);
+    }
     switch (data.type) {
       case Messages.idFulfill:
         game.id = data.id;
@@ -73,7 +75,7 @@ class ClientGame {
 
       case Messages.updateFulfill:
         if (data.time < this.lastUpdateTime) {
-          console.log("Outdated data.");
+          console.log("Received outdated data.");
           return;
         }
         const response = data.data;
