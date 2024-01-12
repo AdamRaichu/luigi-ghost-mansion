@@ -56,7 +56,7 @@ export class ServerGame {
     return this.playerRoles[id];
   }
 
-  getGhost() {
+  getGhostPlayer() {
     console.assert(this.getPlayerCount() > 0, "Cannot get ghost if no players are registered.");
 
     const _this = this;
@@ -89,7 +89,7 @@ export class ServerGame {
 
     // Add to renderData based on role.
     const role = this.getPlayerRole(input.id);
-    const ghost = this.getGhost();
+    const ghost = this.getGhostPlayer();
     if (role === Role.ghost || ghost.isSprinting()) {
       this.renderGhost(returnData.renderData);
     }
