@@ -10,7 +10,8 @@
   <noscript>
     <link rel="stylesheet" href="main.css">
   </noscript>
-  <script defer async src='game.mjs' type="module"></script>
+  <script defer src='game.mjs' type="module"></script>
+  <script defer src="config.mjs" type="module"></script>
 </head>
 
 <body>
@@ -18,11 +19,15 @@
   <p>Status: <span id="status">NONE</span></p>
   <p>Player count: <span id="playerCount">0</span></p>
   <p>Your role: <span id="role">WAITING_FOR_SERVER</span></p>
+  <p><button id="config">Open Settings</button></p>
+  <p><button id="ready">Click when ready.</button></p>
   <canvas id="canvas" width="800" height="400"></canvas>
   <div id="sprites">
     <img data-name="ghost.jpg" src="./images/ghost.jpg">
     <img data-name="luigi.png" src="./images/luigi.png">
   </div>
+  <div id="notifs"></div>
+  <audio src="./sound/stage-1.m4a" preload="auto" id="stage1"></audio>
 </body>
 
 </html>

@@ -11,6 +11,6 @@ export const DefaultConfig = {
 
   // Luigi Only
   LuigiShineLight: " ",
-  LuigiRotateLeft: "ArrowLeft",
-  LuigiRotateRight: "ArrowRight",
+  LuigiRotateLeft: "arrowleft",
+  LuigiRotateRight: "arrowright",
 };

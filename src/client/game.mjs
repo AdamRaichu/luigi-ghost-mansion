@@ -1,11 +1,22 @@
+import { DefaultConfig } from "../common/default-config.mjs";
 import { Drawable } from "../common/drawable.mjs";
 import { Messages } from "../common/messages.mjs";
 import { CanvasUtils } from "./canvas.mjs";
+import { getCurrentConfig } from "./config.mjs";
+import { showNotification } from "./notif.mjs";
+
+// TODO: Change update interval based on player readiness.
 
 const statusDisplay = document.getElementById("status");
 const playerCountDisplay = document.getElementById("playerCount");
+var lastPlayerCount = 0;
 const roleDisplay = document.getElementById("role");
 const updateInterval = 100;
+/**
+ * @type {HTMLAudioElement}
+ */
+const stage1 = document.getElementById("stage1");
+const readyButton = document.getElementById("ready");
 
 // Needed to get the websocket host.
 const params = Object.fromEntries(new URLSearchParams(location.search));
@@ -16,12 +27,13 @@ const cu = new CanvasUtils(canvas);
 Drawable.setContext(cu.ctx);
 
 // Track pressed keys
+// Use toLowerCase here because caps lock and shift change the key.
 var keyMap = {};
 window.addEventListener("keydown", function (ev) {
-  keyMap[ev.key] = true;
+  keyMap[ev.key.toLowerCase()] = true;
 });
 window.addEventListener("keyup", function (ev) {
-  keyMap[ev.key] = false;
+  keyMap[ev.key.toLowerCase()] = false;
 });
 
 getAndRefreshSocket();
@@ -60,7 +72,7 @@ class ClientGame {
    */
   socketListener(ev) {
     var data = JSON.parse(ev.data);
-    if (params?.debug) {
+    if (Object.keys(params).includes("debug")) {
       console.log(data);
     }
     switch (data.type) {
@@ -70,6 +82,10 @@ class ClientGame {
         console.log("Private id is " + data.id);
         roleDisplay.innerText = data.role;
         statusDisplay.innerText = GameStatus.WAITING_PLAYER;
+        const currentConfig = getCurrentConfig();
+        if (!(currentConfig === DefaultConfig)) {
+          game.sendConfigUpdateToServer(currentConfig);
+        }
         game.requestUpdateFromServer();
         break;
 
@@ -79,7 +95,11 @@ class ClientGame {
           return;
         }
         const response = data.data;
-        playerCountDisplay.innerText = response.playerCount;
+
+        // Update playerCountDisplay
+        if (lastPlayerCount !== response.playerCount) {
+          playerCountDisplay.innerText = response.playerCount;
+        }
 
         // Rendering
         cu.clear();
@@ -87,9 +107,30 @@ class ClientGame {
           Drawable.fromJSON(jsonData).draw();
         }
         break;
-      case Messages.errorResponse:
-        console.error(data);
+
+      case Messages.setConfigAck:
+        showNotification("The server received your config update.");
         break;
+
+      case Messages.playerReadyAck:
+        showNotification("The server received your ready signal.");
+        break;
+
+      case Messages.gameStart:
+        game.setStatus(GameStatus.IN_PROGRESS);
+        stage1.play();
+        break;
+
+      case Messages.errorResponse:
+        console.error(data.message, data);
+        if (data.message === "Received message with unknown id. Please reload the page.") {
+          showNotification("Your game id is unknown to the server. Likely, the server restarted. The page will reload in 5 seconds.");
+          setTimeout(function () {
+            location.reload();
+          }, 5000);
+        }
+        break;
+
       default:
         console.warn("Unknown response from server.");
         break;
@@ -120,6 +161,10 @@ class ClientGame {
   requestIdFromServer() {
     this.sendMessageToServer({ type: Messages.idRequest });
   }
+
+  sendConfigUpdateToServer(config, silent = false) {
+    this.sendMessageToServer({ type: Messages.setConfig, id: this.id, config, silent });
+  }
 }
 
 const GameStatus = {
@@ -136,10 +181,12 @@ const GameStatus = {
  * @returns {Promise<WebSocket>}
  */
 async function getSocket() {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async function (resolve, _reject) {
     var hasValidConnection = false;
     while (!hasValidConnection) {
-      const socket = new WebSocket(`ws://${decodeURIComponent(params.socket_host)}`);
+      const useSecureSocket = Object.keys(params).includes("secure_socket");
+      const socket = new WebSocket(`${useSecureSocket ? "wss" : "ws"}://${decodeURIComponent(params.socket_host)}`);
+      // const socket = new WebSocket(`wss://${decodeURIComponent(params.socket_host)}`);
 
       socket.addEventListener("open", (event) => {
         hasValidConnection = true;
@@ -156,12 +203,12 @@ async function getSocket() {
   });
 }
 
-function getAndRefreshSocket() {
-  getSocket().then(function (s) {
+async function getAndRefreshSocket() {
+  getSocket().then(function (socket) {
     console.log("Valid socket was found.");
-    game.setSocket(s);
+    game.setSocket(socket);
     game.setStatus(GameStatus.WAITING_SERVER);
-    s.addEventListener("close", function () {
+    socket.addEventListener("close", function () {
       console.log("WebSocket has closed!");
       game.setStatus(GameStatus.DISCONNECTED);
       getAndRefreshSocket();
@@ -169,4 +216,10 @@ function getAndRefreshSocket() {
   });
 }
 
-const game = new ClientGame();
+export const game = new ClientGame();
+
+readyButton.addEventListener("click", function () {
+  readyButton.disabled = true;
+  readyButton.textContent = "Ready.";
+  game.sendMessageToServer({ type: Messages.playerReady, id: game.id });
+});

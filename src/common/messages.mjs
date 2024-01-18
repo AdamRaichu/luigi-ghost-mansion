@@ -7,4 +7,6 @@ export const Messages = {
   setConfig: "setConfig",
   setConfigAck: "setConfigAck",
   errorResponse: "errorResponse",
+  playerReady: "playerReady",
+  playerReadyAck: "playerReadyAck",
 };
